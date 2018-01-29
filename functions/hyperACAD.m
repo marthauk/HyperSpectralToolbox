@@ -50,15 +50,10 @@ u_k = M(:,1);
 % Grubbs test for setting treshold?
 %tresh = 50;
 
-% adaptive_autocorr_inv is the inverse causal autocorrelation for each pixel n in the
-% set N
-%adaptive_autocorr_inv_n_acad = zeros(floor(n_acad),p,p);
-%adaptive_autocorr_inv = zeros(N,1);
-
 
 % d_acad is the result of Adapative Causal anomaly detection
 d_acad = zeros(N, 1);
-sum_d_acad = 0;
+
 
 %waitbar for progress monitoring
 h = waitbar(0,'Initializing waitbar ..');
@@ -82,29 +77,10 @@ for j=1:N
         % necessary, and will cost computation time. Find fix
         adaptive_autocorr_inv = inv(autocorr - anomalies_detected_transpose_sum);
         
-        %if(j>floor(n_acad))
-            % circshift does a circular shift. Only left shift is really
-            % needed
-        %    circshift(adaptive_autocorr_inv_n_acad,[0,-1]);
-        %    adaptive_autocorr_inv_n_acad(mod(floor(n_acad),j),:,:) = adaptive_autocorr_inv;
-        %else
-        %    adaptive_autocorr_inv_n_acad(j,:,:) = adaptive_autocorr_inv;
-        %end
-        %disp(adaptive_autocorr(j,:,:));
-        
         d_acad(j)= M(:,j).' * adaptive_autocorr_inv * M(:,j);
         d_acad = abs(d_acad);
-        % There is an optimization to be done here
-        %for i=j-floor(n_acad): j-1
-        %for i = 1:floor(n_acad)    
-            %if i< 1
-            %   local_corr_inv = 0;
-            %else 
-          %     local_corr_inv = adaptive_autocorr_inv_n_acad(i,:,:);%d_acad(i);
-         %      local_corr_inv = squeeze(local_corr_inv);
-            %end
-        %sum_d_acad = sum_d_acad + M(:,j+i-1).'* local_corr_inv * M(:,j+i-1);
-        %end
+
+     
         if(j>floor(n_acad))
             u_k_un_normalized = prev_u_k + d_acad(j) - d_acad(j-floor(n_acad));
         else 
@@ -112,16 +88,14 @@ for j=1:N
         end
         u_k  = (1/n_acad) * u_k_un_normalized;
         u_k = abs(u_k);
-        % something is wrong with u_k
+     
         disp(d_acad(j)-u_k);
         if (abs(d_acad(j) - u_k)) > tresh
             % This pixel is an anomaly! Add it to the set of anomalies
-            disp('hello');
             anomalies_detected(:,t_an) = M(:,j);
             anomalies_detected_transpose_sum = M(:,j)* M(:,j).' + anomalies_detected_transpose_sum;
             t_an = t_an + 1;
         end
-        %sum_d_acad = 0;
         prev_u_k = u_k_un_normalized;
         waitbar(j/N,h,'Updated progress');
 end
