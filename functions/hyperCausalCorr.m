@@ -11,8 +11,4 @@ function [R_causal_corr] = hyperCausalCorr(M, pixel_n)
 % Outputs
 %   R - Sample causal autocorrelation matrix
 
-%sum_causal = 0;
-%for i=1:pixel_n
-%    sum_causal = sum_causal + M(:,i)* M(:,i).';
-%end
-R_causal_corr =  M(:,pixel_n)* M(:,pixel_n).';%1/pixel_n * sum_causal;
+R_causal_corr =  M(:,pixel_n)* M(:,pixel_n).';

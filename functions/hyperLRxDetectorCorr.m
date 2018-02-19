@@ -13,11 +13,9 @@ function [result, autocorr, sigmaInv] = hyperLRxDetectorCorr(M,K,coord_3D)
 %   sigma - Correlation matrix (p x p)
 %   sigmaInv - Inverse of correlation matrix (p x p)
 if( coord_3D == 0)
-% Remove the data mean
-% is this necessary??
+
 [p, N] = size(M);
-mMean = mean(M, 2);
-M = M - repmat(mMean, 1, N);
+
 
 % Compute correlation matrix of size K
 % correlation matrix will be of size p x p

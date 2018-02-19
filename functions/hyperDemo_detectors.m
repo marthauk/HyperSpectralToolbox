@@ -3,7 +3,10 @@ function hyperDemo_detectors
 clear; clc; dbstop if error; close all;
 %--------------------------------------------------------------------------
 %% Parameters
-resultsDir ='E:\One Drive\OneDrive for Business\NTNU\Master\MATLAB_Hyperspectral_toolbox\results';
+%resultsDir ='E:\One Drive\OneDrive for Business\NTNU\Master\Forked_MATLAB_hyperspectral_toolbox\MATLAB_Hyperspectral_toolbox\results';
+%dataDir = 'E:\One Drive\OneDrive for Business\NTNU\Master\Forked_MATLAB_hyperspectral_toolbox\MATLAB_DEMO_hyperspectral\f970619t01p02r02c';
+
+resultsDir ='E:\One Drive\OneDrive for Business\NTNU\Master\MATLAB_Hyperspectral_toolbox\results\ACAD_range300_1500';
 dataDir = 'E:\One Drive\OneDrive for Business\NTNU\Master\MATLAB_DEMO_hyperspectral\f970619t01p02r02c';
 %--------------------------------------------------------------------------
 
@@ -44,16 +47,33 @@ M = hyperConvert2d(M);
 K=25;
 %M_test_to = cast(M,'double');
 %r = hyperLRxDetectorCorr(M,K,0);
-%for tresh= 271: 1 :289
-tresh = 275; 
-[r, anomalies_detected] = hyperACAD(M,tresh);
+%for tresh= 1500: 50 :2000
+tresh = 200;
+for tresh= 325: 25: 500
+[r, anomalies_detected,treshold_check_values,location_of_anomalies] = hyperACAD(M,tresh);
+N= 61400;
+anomaly_map= zeros(1,N);
+
+for i=1:1:N/2
+    if (anomalies_detected(1,i)~= 0)
+        pixel_pos_anomaly = location_of_anomalies(i);
+        anomaly_map(pixel_pos_anomaly) = 100;  
+    end
+end
 
 r = hyperConvert3d(r.', h, w, 1);
-figure; imagesc(r); title(['RX Detector Results, tresh =' num2str(tresh) '.'] ); axis image;
+figure; imagesc(r); title(['ACAD Detector Results, tresh =' num2str(tresh) '.'] ); axis image;
     colorbar;
-hyperSaveFigure(gcf, sprintf(['%s\\rx detector' num2str(tresh) '.png' ], resultsDir));%
+hyperSaveFigure(gcf, sprintf(['%s\\ACAD detector using abs' num2str(tresh) '.png' ], resultsDir));%
 
-%end
+anomaly_map = hyperConvert3d(anomaly_map.', h, w, 1);    
+figure; imagesc(anomaly_map); title([' Anomaly map, tresh =' num2str(tresh) '.'] ); axis image;
+    colorbar;    
+hyperSaveFigure(gcf, sprintf(['%s\\ACAD anomaly map' num2str(tresh) '.png' ], resultsDir));%
+    
+    
+
+end
 
 %% Constrained Energy Minimization (CEM)
 r = hyperCem(M, target);
