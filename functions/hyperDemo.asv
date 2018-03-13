@@ -15,8 +15,8 @@ mkdir(resultsDir);
 % addpath(fastIcaDir);
 
 %% Read in an HSI image and display one band
-slice = hyperReadAvirisRfl(sprintf('%s/f970619t01p02_r02_sc04.a.rfl', dataDir), [1 100], [1 614], [132 132]);
-%slice = hyperReadAvirisRfl(sprintf('%s/f970619t01p02_r02_sc05.a.rfl', dataDir), [1 100], [1 158], [50 50]);
+%slice = hyperReadAvirisRfl(sprintf('%s/f970619t01p02_r02_sc05.a.rfl', dataDir), [1 100], [1 614], [132 132]);
+slice = hyperReadAvirisRfl(sprintf('%s/f970619t01p02_r02_sc05.a.rfl', dataDir), [1 10], [1 614], [50 50]);
 figure; imagesc(slice); axis image; colormap(gray);
     title('Band 132');
 

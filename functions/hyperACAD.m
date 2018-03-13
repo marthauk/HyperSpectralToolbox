@@ -84,14 +84,7 @@ for j=1:N
         
         %temp_acad = M(:,j).' * adaptive_autocorr_inv * M(:,j);
         d_acad(j)= M(:,j).' * adaptive_autocorr_inv * M(:,j);
-        %if (temp_acad<0)
-       %     d_acad(j) = 0;
-        %else
-        %    d_acad(j) = temp_acad;
-        %end
-        %d_acad = abs(d_acad);
 
-     
         if(j>floor(n_acad))
             u_k_un_normalized = prev_u_k + d_acad(j) - d_acad(j-floor(n_acad));
         else 

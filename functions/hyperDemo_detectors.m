@@ -13,23 +13,28 @@ dataDir = 'E:\One Drive\OneDrive for Business\NTNU\Master\MATLAB_DEMO_hyperspect
 mkdir(resultsDir);
 
 %% Read part of AVIRIS data file that we will further process
-M = hyperReadAvirisRfl(sprintf('%s\\f970619t01p02_r02_sc02.a.rfl', dataDir), [1 100], [1 614], [1 224]);
+%M = hyperReadAvirisRfl(sprintf('%s\\f970619t01p02_r02_sc02.a.rfl', dataDir), [1 100], [1 614], [1 224]);
+M = hyperReadAvirisRfl(sprintf('%s\\f970619t01p02_r02_sc04.a.rfl', dataDir), [1 100], [1 614], [1 224]);
+
 M = hyperNormalize(M);
-%M_test = imread('E:\One Drive\OneDrive for Business\NTNU\Master\MATLAB_DEMO_hyperspectral\220_band_aviris_june12\aviris_hyperspectral_data\19920612_AVIRIS_IndianPine_EW-line_R.tif');
-%M_test = hyperNormalize(M_test);
 %% Read AVIRIS .spc file
 lambdasNm = hyperReadAvirisSpc(sprintf('%s\\f970619t01p02_r02.a.spc', dataDir));
 
 %% Isomorph
 [h, w, p] = size(M);
 M = hyperConvert2d(M);
-
+%KSC_2d = hyperConvert2d(KSC);
+%M=KSC_2d;
 %% Resample AVIRIS image.
 desiredLambdasNm = 400:(2400-400)/(224-1):2400;
 M = hyperResample(M, lambdasNm, desiredLambdasNm);
 
 %% Remove low SNR bands.
-goodBands = [10:100 116:150 180:216];
+goodBands = [10:100 116:150 180:216]; % for AVIRIS with 224 channels
+%goodbands_KSC =[10:100 116:150];
+
+%KSC_2d = KSC_2d(goodbands_KSC,:);
+%p = length(goodbands_KSC);
 M = M(goodBands, :);
 p = length(goodBands);
 
@@ -37,7 +42,7 @@ p = length(goodBands);
 M = hyperConvert3d(M, h, w, p);
 target = squeeze(M(11, 77, :));
 figure; plot(desiredLambdasNm(goodBands), target); grid on;
-    title('Target Signature; Pixel (32, 257)');
+    title('Target Signature; Pixel (32, 257)'); 
 
 M = hyperConvert2d(M);
   
@@ -46,34 +51,41 @@ M = hyperConvert2d(M);
 %r = hyperRxDetectorCor(M);
 K=25;
 %M_test_to = cast(M,'double');
-%r = hyperLRxDetectorCorr(M,K,0);
+%r = hyperLRxDetectorCorr(M,K);
+r=hyperLRX_anomaly_set_remover(M,K);
+%r=hyperLRX_anomaly_set_remover(KSC_2d,K);
 %for tresh= 1500: 50 :2000
 tresh = 200;
-for tresh= 325: 25: 500
-[r, anomalies_detected,treshold_check_values,location_of_anomalies] = hyperACAD(M,tresh);
-N= 61400;
-anomaly_map= zeros(1,N);
-
-for i=1:1:N/2
-    if (anomalies_detected(1,i)~= 0)
-        pixel_pos_anomaly = location_of_anomalies(i);
-        anomaly_map(pixel_pos_anomaly) = 100;  
-    end
-end
+% for tresh= 325: 25: 500
+% [r, anomalies_detected,treshold_check_values,location_of_anomalies] = hyperACAD(M,tresh);
+% N= 61400;
+% anomaly_map= zeros(1,N);
+% 
+% for i=1:1:N/2
+%     if (anomalies_detected(1,i)~= 0)
+%         pixel_pos_anomaly = location_of_anomalies(i);
+%         anomaly_map(pixel_pos_anomaly) = 100;  
+%     end
+% end
+%w= 614;
+%h= 512;
 
 r = hyperConvert3d(r.', h, w, 1);
-figure; imagesc(r); title(['ACAD Detector Results, tresh =' num2str(tresh) '.'] ); axis image;
+%figure; imagesc(r); title(['ACAD Detector Results, tresh =' num2str(tresh) '.'] ); axis image;
     colorbar;
-hyperSaveFigure(gcf, sprintf(['%s\\ACAD detector using abs' num2str(tresh) '.png' ], resultsDir));%
-
-anomaly_map = hyperConvert3d(anomaly_map.', h, w, 1);    
-figure; imagesc(anomaly_map); title([' Anomaly map, tresh =' num2str(tresh) '.'] ); axis image;
-    colorbar;    
-hyperSaveFigure(gcf, sprintf(['%s\\ACAD anomaly map' num2str(tresh) '.png' ], resultsDir));%
     
+figure; image(r); title(['LRX removing anomalies, the right way (?),tresh =4000,K=25 .'] ); axis image;
+    colorbar;
+%hyperSaveFigure(gcf, sprintf(['%s\\ACAD detector using abs' num2str(tresh) '.png' ], resultsDir));%
+
+% anomaly_map = hyperConvert3d(anomaly_map.', h, w, 1);    
+% figure; imagesc(anomaly_map); title([' Anomaly map, tresh =' num2str(tresh) '.'] ); axis image;
+%     colorbar;    
+% hyperSaveFigure(gcf, sprintf(['%s\\ACAD anomaly map' num2str(tresh) '.png' ], resultsDir));%
+%     
     
 
-end
+%end
 
 %% Constrained Energy Minimization (CEM)
 r = hyperCem(M, target);

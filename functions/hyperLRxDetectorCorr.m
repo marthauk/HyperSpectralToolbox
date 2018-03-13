@@ -1,4 +1,4 @@
-function [result, autocorr, sigmaInv] = hyperLRxDetectorCorr(M,K,coord_3D)
+function [result, autocorr, sigmaInv] = hyperLRxDetectorCorr(M,K)
 %HYPERRX LRX anomaly detector
 %   hyperLRxDetector performs the Local RX anomaly detector using Correlation
 %   instead of covariance
@@ -12,7 +12,6 @@ function [result, autocorr, sigmaInv] = hyperLRxDetectorCorr(M,K,coord_3D)
 %   result - Detector output (1 x N)
 %   sigma - Correlation matrix (p x p)
 %   sigmaInv - Inverse of correlation matrix (p x p)
-if( coord_3D == 0)
 
 [p, N] = size(M);
 
@@ -21,6 +20,9 @@ if( coord_3D == 0)
 % correlation matrix will be of size p x p
 autocorr_all_pixels = zeros(p*N,1);
 result = zeros(N, 1);
+anomalies_detected=zeros(p,N/2);
+tresh_LRX = 6.0000e+14;
+
 % for all spectral_bands
 %for i= 1:p
     % for all N= m x n pixels
@@ -30,13 +32,11 @@ result = zeros(N, 1);
         %disp(autocorrInv);
         %result(j) = M(:,i).' * autocorrInv;
         result(j) = M(:,j).' * autocorrInv * M(:,j);
+        
         %result(j)= result(j) *  M(:,i);
     end
 %end
-else
-    % [row, column,band]
-    [m,n,p] = size(M);
-end
+
 result = abs(result);
 
 return;
