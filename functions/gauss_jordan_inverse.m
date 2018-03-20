@@ -19,7 +19,7 @@ if(strcmp(mode,'forward') | strcmp(mode,'all'))
    if (A(i,i) == 0)
  %i=1; 
   for (j =i+1:1:size_p)
-     disp(j);
+  %   disp(j);
           if (A(j,j)~=0)
               % The operations below will be different in hardware, because
               % of parallell operations
@@ -48,9 +48,9 @@ if(strcmp(mode,'forward') | strcmp(mode,'all'))
          A(j,l) = A(j,l)- A(i,l)*A_j_i_temp/A_i_i_temp; 
         A_inv(j,l) = A_inv(j,l) - A_inv(i,l)*A_j_i_temp/A_i_i_temp;
         end
-        disp(j);
+    %    disp(j);
    end
-   disp(A);
+ %  disp(A);
 end
 end
 
@@ -95,6 +95,7 @@ if(strcmp(mode,'all'))
     A_mode_elim = zeros(3);
 end
 % Last division to build an identity matrix
+disp(A);
 for ( i = 1:+1:size_p)
        disp(A_inv);
     A_inv(i,:)= A_inv(i,:)*1/A(i,i);

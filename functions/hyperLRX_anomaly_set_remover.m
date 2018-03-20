@@ -1,4 +1,4 @@
-function [result, anomalies_detected,location_of_anomalies] = hyperLRX_anomaly_set_remover(M,K)
+function [result, anomalies_detected,location_of_anomalies,last_local_anomalies_set] = hyperLRX_anomaly_set_remover(M,K,treshold)
 % LRX anomaly detector, that also removes the detected anomalous targets
 % causaly.
 %   hyperLRxDetector performs the Local RX anomaly detector using Correlation
@@ -22,16 +22,19 @@ result = zeros(N, 1);
 anomalies_detected=zeros(p,N/2);
 anomalies_detected_transpose_sum = zeros(p,p);
 %tresh_LRX = 6.0000e+14;
-tresh_LRX=4000;
+tresh_LRX=treshold;
 location_of_anomalies= zeros(N/2,1);
 
 local_anomalies_set=0;
+last_local_anomalies_set =0;
 ROWS=100;
 t_an=1;
 
+
+flag_local_anomaly_found =0;
     for j=1:N
         autocorr = hyperCorrK(M,K,p);
-         adaptive_autocorr_inv = inv(autocorr - anomalies_detected_transpose_sum);
+         %adaptive_autocorr_inv = inv(autocorr - anomalies_detected_transpose_sum);
          adaptive_autocorr_inv = inv(autocorr - local_anomalies_set);
 %result(j) = M(:,i).' * autocorrInv;
         
@@ -45,12 +48,39 @@ t_an=1;
         end
         %if anomalies_detected_transpose_sum contains elements from outside
         %the KERNEL
-        for( i=1:t_an)
-           for k=1:K
-              if(location_of_anomalies(t_an) >j-floor(K/2)+(k-1)*ROWS & location_of_anomalies(t_an)< j+floor(K/2)+(k-1)*ROWS)
-                  local_anomalies_set = local_anomalies_set + anomalies_detected(:,t_an)*anomalies_detected(:,t_an).';
-                  break;
-              end
+        
+        lower_limit_matrix = j - floor(K/2);
+        higher_limit_matrix = j + floor(K/2);
+
+        % Check if index is out of bounds 
+        if( lower_limit_matrix < 1)
+            % for edges of the matrix, gonna assume that we just throw out points
+            % outside of the edge, and use half the KERNEL
+            lower_limit_matrix = 1;   
+        end
+        if ( higher_limit_matrix > N)
+          % M(band, neighbouring_pixels) * (M(band, Neighbouring pixels)
+          higher_limit_matrix = N;
+        end
+        
+        if(any(local_anomalies_set))
+            %just to check that it works
+            last_local_anomalies_set = local_anomalies_set;
+        end
+        %resetting local_anomalies_set before using it the next iteration
+        local_anomalies_set = 0;
+        flag_local_anomaly_found =0;
+        for i=1:t_an
+           if flag_local_anomaly_found == 0
+               for k=1:K
+                  if(flag_local_anomaly_found==0)
+                      if(location_of_anomalies(i) >lower_limit_matrix+(k-1)*ROWS & location_of_anomalies(i)< higher_limit_matrix+(k-1)*ROWS)
+                          local_anomalies_set = local_anomalies_set + anomalies_detected(:,i)*anomalies_detected(:,i).';
+                          flag_local_anomaly_found =1;
+                          break;
+                      end
+                  end
+               end
            end
             %if location_of_anomalies(t_an)<j-floor(K/2) | location_of_anomalies(t_an)>j+floor(K/2)
             %    anomalies_detected_transpose_sum =anomalies_detected_transpose_sum - M(:,t_an)*M(:,t_an).';
@@ -62,5 +92,3 @@ t_an=1;
 
 
 result = abs(result);
-
-return;

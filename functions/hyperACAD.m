@@ -1,4 +1,4 @@
-function [d_acad, anomalies_detected,threshold_check_values,location_of_anomalies] = hyperACAD(M,tresh)
+function [d_acad, anomaly_map,threshold_check_values] = hyperACAD(M,tresh)
 %HYPERRX Adaptive Causal Anomaly detector
 %   hyperLRxDetector performs the Adaptive Causal detector using
 %   correlation matrix
@@ -22,7 +22,8 @@ function [d_acad, anomalies_detected,threshold_check_values,location_of_anomalie
 t_an=1;
 
 % bheta is the ratio of the entire image size to the size of anomaly
-bheta = 100;
+%bheta = 100;
+bheta = 50;
 
 % p is number of spectral bands, N is number of pixels
 [p, N] = size(M);
@@ -87,13 +88,14 @@ for j=1:N
 
         if(j>floor(n_acad))
             u_k_un_normalized = prev_u_k + d_acad(j) - d_acad(j-floor(n_acad));
+            %u_k_un_normalized = sum(d_acad(j-n_acad:j));
         else 
             u_k_un_normalized = prev_u_k + d_acad(j);
         end
         u_k  = (1/n_acad) * u_k_un_normalized;
         %u_k = abs(u_k);
      
-        disp(d_acad(j)-u_k);
+        %disp(d_acad(j)-u_k);
         threshold_check_values(j) = d_acad(j)-u_k;
         %if (abs(d_acad(j) - u_k)) > tresh
         if ((d_acad(j) - u_k)) > tresh    
@@ -104,7 +106,14 @@ for j=1:N
             t_an = t_an + 1;
         end
         prev_u_k = u_k_un_normalized;
-        waitbar(j/N,h,'Updated progress');
+        waitbar(j/N,h,'Updated progress ACAD');
+end
+anomaly_map= zeros(1,N);
+for i=1:1:N/2
+    if (anomalies_detected(1,i)~= 0)
+    pixel_pos_anomaly = location_of_anomalies(i);
+    anomaly_map(pixel_pos_anomaly) = 1;
+    end
 end
 
 return;

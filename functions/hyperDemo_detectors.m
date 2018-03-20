@@ -6,15 +6,15 @@ clear; clc; dbstop if error; close all;
 %resultsDir ='E:\One Drive\OneDrive for Business\NTNU\Master\Forked_MATLAB_hyperspectral_toolbox\MATLAB_Hyperspectral_toolbox\results';
 %dataDir = 'E:\One Drive\OneDrive for Business\NTNU\Master\Forked_MATLAB_hyperspectral_toolbox\MATLAB_DEMO_hyperspectral\f970619t01p02r02c';
 
-resultsDir ='E:\One Drive\OneDrive for Business\NTNU\Master\MATLAB_Hyperspectral_toolbox\results\ACAD_range300_1500';
+resultsDir =['E:\One Drive\OneDrive for Business\NTNU\Master\Anomaly detection results\MATLAB\LRX\real image data Cuprite scene\' ,datestr(now, 'dd-mmm-yyyy')];
 dataDir = 'E:\One Drive\OneDrive for Business\NTNU\Master\MATLAB_DEMO_hyperspectral\f970619t01p02r02c';
 %--------------------------------------------------------------------------
 
 mkdir(resultsDir);
 
 %% Read part of AVIRIS data file that we will further process
-%M = hyperReadAvirisRfl(sprintf('%s\\f970619t01p02_r02_sc02.a.rfl', dataDir), [1 100], [1 614], [1 224]);
-M = hyperReadAvirisRfl(sprintf('%s\\f970619t01p02_r02_sc04.a.rfl', dataDir), [1 100], [1 614], [1 224]);
+M = hyperReadAvirisRfl(sprintf('%s\\f970619t01p02_r02_sc02.a.rfl', dataDir), [1 100], [1 614], [1 224]);
+%M = hyperReadAvirisRfl(sprintf('%s\\f970619t01p02_r02_sc04.a.rfl', dataDir), [1 100], [1 614], [1 224]);
 
 M = hyperNormalize(M);
 %% Read AVIRIS .spc file
@@ -50,40 +50,45 @@ M = hyperConvert2d(M);
 %r = hyperRxDetector(M);
 %r = hyperRxDetectorCor(M);
 K=25;
-%M_test_to = cast(M,'double');
-%r = hyperLRxDetectorCorr(M,K);
-r=hyperLRX_anomaly_set_remover(M,K);
-%r=hyperLRX_anomaly_set_remover(KSC_2d,K);
-%for tresh= 1500: 50 :2000
-tresh = 200;
+r = hyperLRxDetectorCorr(M,K);
+%g = ground_truth(h,614, M, M_endmembers);
+%figure; imagesc(g);colorbar;
+treshold = 500;
+%for treshold= 500: 250 :2000
+%[r,anomalies_detected, location_of_anomalies,last_local_anomalies_set]=hyperLRX_anomaly_set_remover(M,K,treshold);
+%[r,anomalies_detected, location_of_anomalies,last_local_anomalies_set]=hyperLRX_anomaly_set_remover(KSC_2d,K,treshold);
+
 % for tresh= 325: 25: 500
 % [r, anomalies_detected,treshold_check_values,location_of_anomalies] = hyperACAD(M,tresh);
-% N= 61400;
-% anomaly_map= zeros(1,N);
-% 
-% for i=1:1:N/2
-%     if (anomalies_detected(1,i)~= 0)
-%         pixel_pos_anomaly = location_of_anomalies(i);
-%         anomaly_map(pixel_pos_anomaly) = 100;  
-%     end
-% end
+ %N= 61400;
+%  N= 314368;
+%  anomaly_map= zeros(1,N);
+% % 
+%  for i=1:1:N/2
+%      if (anomalies_detected(1,i)~= 0)
+%          pixel_pos_anomaly = location_of_anomalies(i);
+%          anomaly_map(pixel_pos_anomaly) = 1;  
+%      end
+%  end
 %w= 614;
 %h= 512;
 
 r = hyperConvert3d(r.', h, w, 1);
 %figure; imagesc(r); title(['ACAD Detector Results, tresh =' num2str(tresh) '.'] ); axis image;
-    colorbar;
+   % colorbar;
     
-figure; image(r); title(['LRX removing anomalies, the right way (?),tresh =4000,K=25 .'] ); axis image;
+%figure; imagesc(r); title(['LRX removing anomalies,tresh =2000,K=25 .'] ); axis image;
     colorbar;
-%hyperSaveFigure(gcf, sprintf(['%s\\ACAD detector using abs' num2str(tresh) '.png' ], resultsDir));%
+ figure; imagesc(r); title(['LRX Cuprite image data sc02 K=' num2str(K) '.'] ); axis image;
+    colorbar;
+% hyperSaveFigure(gcf, sprintf(['%s\\LRX_K=25_treshold_500_KSC' num2str(treshold) '.png' ], resultsDir));%
+% 
+%  anomaly_map = hyperConvert3d(anomaly_map.', h, w, 1);   
+% figure; imagesc(anomaly_map); title(['Anomaly map LRX, treshold =' num2str(treshold) ', K=' num2str(K) '.'] ); axis image;
+%     colorbar;
+%  hyperSaveFigure(gcf, sprintf(['%s\\Anomaly map_K=25_treshold_500_KSC' num2str(treshold) '.png' ], resultsDir));%
 
-% anomaly_map = hyperConvert3d(anomaly_map.', h, w, 1);    
-% figure; imagesc(anomaly_map); title([' Anomaly map, tresh =' num2str(tresh) '.'] ); axis image;
-%     colorbar;    
-% hyperSaveFigure(gcf, sprintf(['%s\\ACAD anomaly map' num2str(tresh) '.png' ], resultsDir));%
-%     
-    
+
 
 %end
 

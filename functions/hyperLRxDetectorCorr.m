@@ -18,25 +18,28 @@ function [result, autocorr, sigmaInv] = hyperLRxDetectorCorr(M,K)
 
 % Compute correlation matrix of size K
 % correlation matrix will be of size p x p
-autocorr_all_pixels = zeros(p*N,1);
 result = zeros(N, 1);
-anomalies_detected=zeros(p,N/2);
-tresh_LRX = 6.0000e+14;
 
 % for all spectral_bands
 %for i= 1:p
     % for all N= m x n pixels
+    h = waitbar(0,'Initializing waitbar ..');
+
     for j=1:N
-        autocorr = hyperCorrK(M,K,p);
-        autocorrInv = inv(autocorr);
+        autocorr = hyperCorrK(M,K,j);
+        %autocorrInv = inv(autocorr);
         %disp(autocorrInv);
         %result(j) = M(:,i).' * autocorrInv;
-        result(j) = M(:,j).' * autocorrInv * M(:,j);
-        
+        result(j) = M(:,j).' * inv(autocorr) * M(:,j);
+        if(result(j)>=10000)
+            weird=1;
+        end
+   %     temp_result=result(j);
         %result(j)= result(j) *  M(:,i);
+      waitbar(j/N,h,'Updated LRX progress');
+
     end
 %end
 
-result = abs(result);
-
 return;
+

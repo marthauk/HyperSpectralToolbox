@@ -15,7 +15,7 @@ mkdir(resultsDir);
 % addpath(fastIcaDir);
 
 %% Read in an HSI image and display one band
-slice = hyperReadAvirisRfl(sprintf('%s/f970619t01p02_r02_sc04.a.rfl', dataDir), [1 100], [1 614], [132 132]);
+slice = hyperReadAvirisRfl(sprintf('%s/f970619t01p02_r02_sc03.a.rfl', dataDir), [1 100], [1 614], [132 132]);
 %slice = hyperReadAvirisRfl(sprintf('%s/f970619t01p02_r02_sc05.a.rfl', dataDir), [1 100], [1 158], [50 50]);
 figure; imagesc(slice); axis image; colormap(gray);
     title('Band 132');
@@ -56,12 +56,39 @@ figure; plot(desiredLambdasNm(goodBands), target); grid on;
     
 %% Spectral Angle Mapper
 r = zeros(h, w);
-for i=1:h
-    for j=1:w
-        r(i, j) = abs(hyperSam(squeeze(M(i,j,:)), target));
+target = M_endmembers_resampled(:,1); %Alunite;
+interesting_pixels = zeros(nEnd,h,w);
+resultsDir ='E:\One Drive\OneDrive for Business\NTNU\Master\Anomaly detection results\MATLAB\Endmember_anomaly_map_creation\Cuprite_scene\sc02\spectral angle mapper';
+for k=1:nEnd
+    target = M_endmembers_resampled(:,k); 
+    material = cood(k);
+    for i=1:h
+        for j=1:w
+            r(i, j) = abs(hyperSam(squeeze(M(i,j,:)), target));
+            if(r(i,j)>= 0.4)
+                interesting_pixels(k,i,j) = 1;
+            end
+        end
     end
+   
+     figure; imagesc(r); title(cood(k)); axis image; colormap('jet');
+     colorbar;
+%     [split_hashtag,hash] =strsplit(cood{k},'#');
+%     hyperSaveFigure(gcf, sprintf(['%s\\Spectral angle mapper, material %s' '.png' ], resultsDir,split_hashtag{2}));%
 end
-figure; imagesc(r); title('Spectral Angle Mapper Result [radians]'); axis image;
+ % Make a map of interesting pixels that stands out from all known
+    % ground truth information
+ anomaly_map = zeros(h,w);
+ for k=1:nEnd
+ for i=1:h
+    for j=1:w
+        if(interesting_pixels(k,i,j) == 1)
+            anomaly_map(i,j) =1;
+        end
+    end
+ end
+ end
+figure; imagesc(anomaly_map); title('Possible anomaly map Cuprite scene'); axis image;
     colorbar;
 
 %% Spectral Information Divergence
