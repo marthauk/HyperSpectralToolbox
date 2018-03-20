@@ -1,7 +1,8 @@
 %generating random image based on cuprite scene data
 h=30;
 w= 30;
-load('E:\One Drive\OneDrive for Business\NTNU\Master\ground_truthing_aviris_cuprite\cuprite\groundTruth_Cuprite_end12\groundTruth_Cuprite_nEnd12.mat','-mat');
+%load('E:\One Drive\OneDrive for Business\NTNU\Master\ground_truthing_aviris_cuprite\cuprite\groundTruth_Cuprite_end12\groundTruth_Cuprite_nEnd12.mat','-mat');
+load('groundTruth_Cuprite_nEnd12.mat','-mat');
 M_endmembers=M;
 goodBands = [10:100 116:150 180:216]; % for AVIRIS with 224 channels
 M_endmembers=M(goodBands,:);
@@ -23,16 +24,11 @@ for i=1:h
 end
 
 
-%create kernels with anomalies of size 1, 5, 10,15, 20, 25 in columns 5, 20,50,100, 400,
-%600, in row 35 and 70 
+%create kernels with anomalies of size 2x2 with bottom left pixel in 15,15
 %column locations
-% KERNEL_SIZE_ONE_LOCATION =50;
+
 KERNEL_SIZE_TWO_LOCATION = 15;
-% KERNEL_SIZE_FIVE_LOCATION =150;
-% KERNEL_SIZE_TEN_LOCATION =250;
-% KERNEL_SIZE_FIFTEEN_LOCATION =350;
-% KERNEL_SIZE_TWENTY_LOCATION =450;
-% KERNEL_SIZE_TWENTYFIVE_LOCATION =550;
+
 image_30_30(KERNEL_SIZE_TWO_LOCATION,KERNEL_SIZE_TWO_LOCATION,:)= M_endmembers(:,3);
 reference_anomaly_map(KERNEL_SIZE_TWO_LOCATION+1,KERNEL_SIZE_TWO_LOCATION)=1;
 reference_anomaly_map(KERNEL_SIZE_TWO_LOCATION,KERNEL_SIZE_TWO_LOCATION)=1;
@@ -44,9 +40,10 @@ image_30_30(KERNEL_SIZE_TWO_LOCATION,KERNEL_SIZE_TWO_LOCATION+1,:)= M_endmembers
 image_30_30(KERNEL_SIZE_TWO_LOCATION+1,KERNEL_SIZE_TWO_LOCATION+1,:)= M_endmembers(:,3);
 
 imnoise(image_30_30,'gaussian',1);
-matrix_test=hyperConvert2d(image_30_30);
+matrix=hyperConvert2d(image_30_30);
 %[d_acad, anomaly_map,threshold_check_values] = hyperACAD(matrix,100);
-K=25;
+% K is size of kernel
+K=5;
 r_rlx =hyperLRxDetectorCorr(matrix,K);
 %d_acad_2d = hyperConvert3d(d_acad.', 30, 30, 1);
 r_rlx_2d = hyperConvert3d(r_rlx.', 30, 30, 1);

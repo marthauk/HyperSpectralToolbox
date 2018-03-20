@@ -1,7 +1,7 @@
 %for Cuprite scene
 h=100;
 w= 614;
-load('E:\One Drive\OneDrive for Business\NTNU\Master\ground_truthing_aviris_cuprite\cuprite\groundTruth_Cuprite_end12\groundTruth_Cuprite_nEnd12.mat','-mat');
+load('groundTruth_Cuprite_nEnd12.mat','-mat');
 M_endmembers=M;
 goodBands = [10:100 116:150 180:216]; % for AVIRIS with 224 channels
 M_endmembers=M(goodBands,:);
