@@ -14,21 +14,33 @@ function [R_k_k] = hyperCorrK(M,K, pixel)
 [p, N] = size(M);
 number_of_rows = 30;
 number_of_cols=30;
+if(mod(pixel,number_of_cols)==0)
+    pixel_column =number_of_cols;
+else
 pixel_column=mod(pixel,number_of_cols);
+end
 lower_limit_matrix = pixel_column - floor(K/2);
 %higher_limit_matrix = pixel + floor(K/2);
 higher_limit_matrix = lower_limit_matrix + K-1; %because matlab loops include the last index
 
 % Check if index is out of bounds 
-if ( higher_limit_matrix > number_of_cols)
-  % M(band, neighbouring_pixels) * (M(band, Neighbouring pixels)
-  higher_limit_matrix = number_of_cols;
+% if ( higher_limit_matrix > number_of_cols)
+%   % M(band, neighbouring_pixels) * (M(band, Neighbouring pixels)
+%   higher_limit_matrix = number_of_cols;
+% end
+while higher_limit_matrix>number_of_cols
+    higher_limit_matrix = higher_limit_matrix-1;
+    lower_limit_matrix = lower_limit_matrix-1;
 end
-if( lower_limit_matrix < 1)
-    % for edges of the matrix, gonna assume that we just throw out points
-    % outside of the edge, and use half the KERNEL
-    lower_limit_matrix = 1;
-    higher_limit_matrix=K;
+% if( lower_limit_matrix < 1)
+%     % for edges of the matrix, gonna assume that we just throw out points
+%     % outside of the edge, and use half the KERNEL
+%     lower_limit_matrix = 1;
+%     higher_limit_matrix=K;
+% end
+while lower_limit_matrix<1
+    lower_limit_matrix = lower_limit_matrix +1;
+    higher_limit_matrix = higher_limit_matrix +1;
 end
 
 % while higher_limit_matrix-lower_limit_matrix>K-1

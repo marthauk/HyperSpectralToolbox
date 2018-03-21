@@ -11,14 +11,16 @@ reference_anomaly_map = zeros(h,w);
 % Setting background
 for i=1:h
     for j=1:w
-        dice = randi(6);
-        if dice>4
-            image(i,j,:)= M_endmembers(:,1); %setting background to alunite
-        elseif dice>2 
-            image(i,j,:)= M_endmembers(:,6); %setting background to Kalonite
-        else 
-            image(i,j,:)= M_endmembers(:,10);% setting background to pyrope
-        end
+%         dice = randi(6);
+%         if dice>4
+%             image(i,j,:)= M_endmembers(:,1); %setting background to alunite
+%         elseif dice>2 
+%             image(i,j,:)= M_endmembers(:,6); %setting background to Kalonite
+%         else 
+%             image(i,j,:)= M_endmembers(:,10);% setting background to pyrope
+%         end
+         rN=rand;
+         image(i,j,:) = rN*M_endmembers(:,1) +0.2*M_endmembers(:,3)+0.2*M_endmembers(:,4)+0.2*M_endmembers(:,7)+(1-rN)*M_endmembers(:,12);
     end 
 end
 
@@ -83,12 +85,22 @@ for i=1:h
     end
 end
 imnoise(image,'gaussian',1);
+
 matrix=hyperConvert2d(image);
+K=25;
+r_rlx =hyperLRxDetectorCorr(matrix,K);
+r_rlx_2d = hyperConvert3d(r_rlx.', h, w, 1);
+
+%anomaly_map_2d = hyperConvert3d(anomaly_map.', 30, 30, 1);
+figure;imagesc(r_rlx_2d);title(['LRX AD detector, K= ' num2str(K) ]); axis image; colorbar;
+
 treshold=100;
 [d_acad, anomaly_map,threshold_check_values] = hyperACAD(matrix,treshold);
 d_acad_2d = hyperConvert3d(d_acad.', h, w, 1);
 anomaly_map_2d = hyperConvert3d(anomaly_map.', h, w, 1);
 figure;imagesc(d_acad_2d); title(['ACAD result, treshold = ' num2str(treshold) ] ); axis image; colorbar;
 figure;imagesc(anomaly_map_2d);title(['ACAD anomaly result, treshold = ' num2str(treshold) ] );  axis image; colorbar;
-
+% for i=1:61400
+%     if
 %figure;imagesc(reference_anomaly_map);axis image; colorbar;
+

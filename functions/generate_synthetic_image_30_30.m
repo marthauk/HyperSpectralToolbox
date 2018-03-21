@@ -12,14 +12,20 @@ reference_anomaly_map = zeros(30,30);
 % Setting background
 for i=1:h
     for j=1:w
-        dice = randi(6);
-        if dice>4
-            image_30_30(i,j,:)= M_endmembers(:,1); %setting background to alunite
-        elseif dice>2 
-            image_30_30(i,j,:)= M_endmembers(:,6); %setting background to Kalonite
-        else 
-            image_30_30(i,j,:)= M_endmembers(:,10);% setting background to pyrope
-        end
+%         dice = randi(6);
+%         if dice>4
+%             image_30_30(i,j,:)= M_endmembers(:,1); %setting background to alunite
+%         elseif dice>2 
+%             image_30_30(i,j,:)= M_endmembers(:,6); %setting background to Kalonite
+%         else 
+%             image_30_30(i,j,:)= M_endmembers(:,10);% setting background to pyrope
+%         end
+            rN = rand;
+            image_30_30(i,j,:)= rN * M_endmembers(:,1) + 0.25*M_endmembers(:,3)+0.25* M_endmembers(:,6) +(1-rN)*M_endmembers(:,8);
+
+%          rN= rand;
+%          image(i,j,:) = rN*M_endmembers(:,1) +0.2*M_endmembers(:,3)+0.2*M_endmembers(:,4)+0.2*M_endmembers(:,7)+rN*M_endmembers(:,12);
+
     end 
 end
 
@@ -43,7 +49,7 @@ imnoise(image_30_30,'gaussian',1);
 matrix=hyperConvert2d(image_30_30);
 %[d_acad, anomaly_map,threshold_check_values] = hyperACAD(matrix,100);
 % K is size of kernel
-K=5;
+K=25;
 r_rlx =hyperLRxDetectorCorr(matrix,K);
 %d_acad_2d = hyperConvert3d(d_acad.', 30, 30, 1);
 r_rlx_2d = hyperConvert3d(r_rlx.', 30, 30, 1);

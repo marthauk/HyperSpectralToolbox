@@ -1,4 +1,4 @@
-function [result, autocorr, sigmaInv] = hyperLRxDetectorCorr(M,K)
+function [result, autocorr, sigmaInv] = hyperLRxDetectorCorr_M(Mi,K)
 %HYPERRX LRX anomaly detector
 %   hyperLRxDetector performs the Local RX anomaly detector using Correlation
 %   instead of covariance
@@ -12,34 +12,24 @@ function [result, autocorr, sigmaInv] = hyperLRxDetectorCorr(M,K)
 %   result - Detector output (1 x N)
 %   sigma - Correlation matrix (p x p)
 %   sigmaInv - Inverse of correlation matrix (p x p)
-
-[p, N] = size(M);
-
+[h,w,p]=size(Mi);
+M=hyperConvert2d(Mi);
+% [p, N] = size(M);
+N=h*w;
 
 % Compute correlation matrix of size K
 % correlation matrix will be of size p x p
 result = zeros(N, 1);
 
-% for all spectral_bands
-%for i= 1:p
-    % for all N= m x n pixels
-    h = waitbar(0,'Initializing waitbar ..');
 
     for j=1:N
-        autocorr = hyperCorrK(M,K,j);
-        M_inv = gauss_jordan_inverse(autocorr,'all');
-        %result(j) = M(:,j).' * pinv(autocorr) * M(:,j);
-        result(j) = M(:,j).' * M_inv * M(:,j);
-
-        if(result(j)>=100)
+        autocorr = hyperCorrK_M(M,h,w,K,j);
+        result(j) = M(:,j).' * pinv(autocorr) * M(:,j);
+        if(result(j)>=10000)
             weird=1;
         end
-   %     temp_result=result(j);
-        %result(j)= result(j) *  M(:,i);
-      waitbar(j/N,h,'Updated LRX progress');
-
+    
     end
-%end
+result = abs(result);
 
 return;
-

@@ -22,8 +22,8 @@ function [d_acad, anomaly_map,threshold_check_values] = hyperACAD(M,tresh)
 t_an=1;
 
 % bheta is the ratio of the entire image size to the size of anomaly
-%bheta = 100;
-bheta = 50;
+bheta = 100;
+%bheta = 50;
 
 % p is number of spectral bands, N is number of pixels
 [p, N] = size(M);
@@ -81,7 +81,9 @@ for j=1:N
         % Since anomalies_detected_transpose is firstly initialized to
         % zero, this will sum N/2 elements being zero. This is not
         % necessary, and will cost computation time. Find fix
-        adaptive_autocorr_inv = inv(autocorr - anomalies_detected_transpose_sum);
+        %adaptive_autocorr_inv = inv(autocorr - anomalies_detected_transpose_sum);
+        adaptive_autocorr_inv = gauss_jordan_inverse(autocorr - anomalies_detected_transpose_sum,'all');
+
         
         %temp_acad = M(:,j).' * adaptive_autocorr_inv * M(:,j);
         d_acad(j)= M(:,j).' * adaptive_autocorr_inv * M(:,j);
@@ -115,5 +117,8 @@ for i=1:1:N/2
     anomaly_map(pixel_pos_anomaly) = 1;
     end
 end
+
+
+
 
 return;
