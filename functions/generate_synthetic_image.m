@@ -1,4 +1,5 @@
 %for Cuprite scene
+clc; clear; close all;
 h=100;
 w= 614;
 load('groundTruth_Cuprite_nEnd12.mat','-mat');
@@ -87,20 +88,84 @@ end
 imnoise(image,'gaussian',1);
 
 matrix=hyperConvert2d(image);
-K=25;
-r_rlx =hyperLRxDetectorCorr(matrix,K);
-r_rlx_2d = hyperConvert3d(r_rlx.', h, w, 1);
+%K=23;
+% r_rlx =hyperLRxDetectorCorr(matrix,K);
+% r_rlx_2d = hyperConvert3d(r_rlx.', h, w, 1);
+
+K=20;
+treshold = 3.5;
+[r_alrx,anomaly_map,not_used ,not_use] =hyperLRX_anomaly_set_remover(matrix,K,treshold);
+%[r_alrx,anomaly_map,not_used ] =hyperACAD(matrix,treshold);
+
+%d_acad_2d = hyperConvert3d(d_acad.', 30, 30, 1);
+r_alrx_2d = hyperConvert3d(r_alrx.', h, w, 1);
+anomaly_map_2d = hyperConvert3d(anomaly_map.', h, w, 1);
+
+figure;imagesc(r_alrx_2d);title(['ALRX AD detector, K= ' num2str(K) ]); axis image; colorbar;
+%figure;imagesc(r_alrx_2d);title(['ACAD result, treshold' num2str(treshold) ]); axis image; colorbar;
+figure;imagesc(anomaly_map_2d);title(['ALRX anomaly map, K= ' num2str(K) ]); axis image; colorbar;
+
+%figure;imagesc(anomaly_map_2d);title(['ACAD anomaly map, treshold= ' num2str(treshold) ]); axis image; colorbar;
+
+
+%% Evaluate the performance of the AD by setting objective measures
+% find max value outputted from the AD
+%max_ad_score = max(r_rlx);
+treshold_percentage = 0.9;
+predicted_anomalies =0;
+true_anomalies_found =0;
+% for i=1:w
+%     for j=1 :h
+%     if r_alrx_2d(j,i)>=treshold_percentage *max_ad_score
+%         predicted_anomalies =predicted_anomalies+1;
+%         if reference_anomaly_map(j,i) ==1 
+%             true_anomalies_found =1 + true_anomalies_found;
+%         end 
+%     end 
+%     end
+%     
+% end
+
+true_anomalies_found =0;
+ for i=1:w
+     for j=1:h
+    if anomaly_map_2d(j,i)==1
+        predicted_anomalies =predicted_anomalies+1;
+        if reference_anomaly_map(j,i)==1
+         true_anomalies_found=true_anomalies_found+1;
+        end
+    end
+    end
+end
+
+false_anomalies = predicted_anomalies-true_anomalies_found;
+if predicted_anomalies<nnz(reference_anomaly_map)
+    correctly_predicted_anomalies =true_anomalies_found/nnz(reference_anomaly_map);
+else
+correctly_predicted_anomalies =true_anomalies_found/predicted_anomalies;
+end
+
+
+
+
+%false_anomalies = predicted_anomalies-true_anomalies_found;
+%correctly_predicted_anomalies =true_anomalies_found/nnz(reference_anomaly_map);
+
+
 
 %anomaly_map_2d = hyperConvert3d(anomaly_map.', 30, 30, 1);
-figure;imagesc(r_rlx_2d);title(['LRX AD detector, K= ' num2str(K) ]); axis image; colorbar;
+%figure;imagesc(r_rlx_2d);title(['LRX AD detector, K= ' num2str(K) ]); axis image; colorbar;
 
-treshold=100;
-[d_acad, anomaly_map,threshold_check_values] = hyperACAD(matrix,treshold);
-d_acad_2d = hyperConvert3d(d_acad.', h, w, 1);
-anomaly_map_2d = hyperConvert3d(anomaly_map.', h, w, 1);
-figure;imagesc(d_acad_2d); title(['ACAD result, treshold = ' num2str(treshold) ] ); axis image; colorbar;
-figure;imagesc(anomaly_map_2d);title(['ACAD anomaly result, treshold = ' num2str(treshold) ] );  axis image; colorbar;
-% for i=1:61400
-%     if
+
+
+% treshold=100;
+% [d_acad, anomaly_map,threshold_check_values] = hyperACAD(matrix,treshold);
+% d_acad_2d = hyperConvert3d(d_acad.', h, w, 1);
+% anomaly_map_2d = hyperConvert3d(anomaly_map.', h, w, 1);
+% figure;imagesc(d_acad_2d); title(['ACAD result, treshold = ' num2str(treshold) ] ); axis image; colorbar;
+% figure;imagesc(anomaly_map_2d);title(['ACAD anomaly result, treshold = ' num2str(treshold) ] );  axis image; colorbar;
+% % for i=1:61400
+% %     if
 %figure;imagesc(reference_anomaly_map);axis image; colorbar;
+
 

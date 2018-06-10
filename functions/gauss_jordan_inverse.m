@@ -1,6 +1,5 @@
 function [A_inv,A_mode_elim,A_mode_elim_inv ] = gauss_jordan_inverse(A,mode)
-%function [A_inv,A_mode_elim,A_mode_elim_inv ] = gauss_jordan_inverse(A)
-%GAUSS_JORDAN_INVERSE Summary of this function goes here
+  
 % This function implements the Gauss-Jordan method for calculating inverse of a square matrix.
 % It acts as a high level model for later implementation in hardware.
 %   Detailed explanation goes here
@@ -12,14 +11,12 @@ function [A_inv,A_mode_elim,A_mode_elim_inv ] = gauss_jordan_inverse(A,mode)
 % A_inv     -   inverse matrix
 [size_p,m]=size(A);
 A_inv = eye(size_p);
-%A_inv = A;
+
 % Forward elimination to build an upper triangular matrix
 if(strcmp(mode,'forward') | strcmp(mode,'all'))
  for (i=1:1:size_p)
    if (A(i,i) == 0)
- %i=1; 
   for (j =i+1:1:size_p)
-  %   disp(j);
           if (A(j,j)~=0)
               % The operations below will be different in hardware, because
               % of parallell operations
@@ -48,9 +45,7 @@ if(strcmp(mode,'forward') | strcmp(mode,'all'))
          A(j,l) = A(j,l)- A(i,l)*A_j_i_temp/A_i_i_temp; 
         A_inv(j,l) = A_inv(j,l) - A_inv(i,l)*A_j_i_temp/A_i_i_temp;
         end
-    %    disp(j);
    end
- %  disp(A);
 end
 end
 
@@ -62,7 +57,6 @@ end
 % Backward elimination to build a diagonal matrix
 if(strcmp(mode,'backward') | strcmp(mode,'all'))
     for(i=size_p:-1:2)
-%i = 3;
    for( j=i-1:-1: 1)
         % The operations below will be different in hardware, because
         % of parallell operations
@@ -94,6 +88,7 @@ if(strcmp(mode,'all'))
     A_mode_elim_inv = zeros(3);
     A_mode_elim = zeros(3);
 end
+
 % Last division to build an identity matrix
 for ( i = 1:+1:size_p)
     A_inv(i,:)= A_inv(i,:)*1/A(i,i);

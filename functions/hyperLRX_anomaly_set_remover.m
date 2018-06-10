@@ -1,4 +1,4 @@
-function [result, anomalies_detected,location_of_anomalies,last_local_anomalies_set] = hyperLRX_anomaly_set_remover(M,K,treshold)
+function [result, anomaly_map,location_of_anomalies,last_local_anomalies_set] = hyperLRX_anomaly_set_remover(M,K,treshold)
 % LRX anomaly detector, that also removes the detected anomalous targets
 % causaly.
 %   hyperLRxDetector performs the Local RX anomaly detector using Correlation
@@ -19,6 +19,7 @@ h = waitbar(0,'Initializing waitbar ..');
 % Compute correlation matrix of size K
 % correlation matrix will be of size p x p
 result = zeros(N, 1);
+anomaly_map = zeros(N,1);
 anomalies_detected=zeros(p,N/2);
 anomalies_detected_transpose_sum = zeros(p,p);
 %tresh_LRX = 6.0000e+14;
@@ -35,13 +36,14 @@ flag_local_anomaly_found =0;
     for j=1:N
         autocorr = hyperCorrK(M,K,p);
          %adaptive_autocorr_inv = inv(autocorr - anomalies_detected_transpose_sum);
-         adaptive_autocorr_inv = inv(autocorr - local_anomalies_set);
+         adaptive_autocorr_inv = pinv(autocorr - local_anomalies_set);
 %result(j) = M(:,i).' * autocorrInv;
         
         result(j) = M(:,j).' * adaptive_autocorr_inv * M(:,j);
         if result(j) > tresh_LRX  
             % This pixel is an anomaly! Add it to the set of anomalies
             anomalies_detected(:,t_an) = M(:,j);
+            anomaly_map(j)=1;
             location_of_anomalies(t_an)=j;
             anomalies_detected_transpose_sum = M(:,j)* M(:,j).' + anomalies_detected_transpose_sum;
             t_an = t_an + 1;

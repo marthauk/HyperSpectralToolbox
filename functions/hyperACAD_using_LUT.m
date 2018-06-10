@@ -1,4 +1,4 @@
-function [d_acad, anomaly_map,threshold_check_values] = hyperACAD(M,tresh)
+function [d_acad, anomaly_map] = hyperACAD_using_LUT(M,tresh)
 %HYPERRX Adaptive Causal Anomaly detector
 %   hyperLRxDetector performs the Adaptive Causal detector using
 %   correlation matrix
@@ -13,8 +13,6 @@ function [d_acad, anomaly_map,threshold_check_values] = hyperACAD(M,tresh)
 % Outputs
 %   d_acad - Detector output (1 x N)
 %   anomalies_detected - (1 x t_an) 
-
-
 
 
 % t_an is the number of anomalies detected. Since MatLab is 1-index, T is
@@ -83,18 +81,15 @@ for j=1:N
         % necessary, and will cost computation time. Find fix
         %adaptive_autocorr_inv = inv(autocorr - anomalies_detected_transpose_sum);
         %adaptive_autocorr_inv = gauss_jordan_inverse(autocorr - anomalies_detected_transpose_sum,'all');
-%         if(j>floor(n_acad))
-%             adaptive_autocorr_inv = gauss_jordan_inverse((autocorr - anomalies_detected_transpose_sum)/(n_acad-t_an),'all');
-%         else
-%             adaptive_autocorr_inv = gauss_jordan_inverse((autocorr - anomalies_detected_transpose_sum)/(j-t_an),'all');
-%         end
-% 
-%      
- if(j>floor(n_acad))
-     adaptive_autocorr_inv = pinv((autocorr - anomalies_detected_transpose_sum))/(n_acad-t_an));
- else
-            adaptive_autocorr_inv = pinv((autocorr - anomalies_detected_transpose_sum))/(j-t_an));
-        end
+         if(j>floor(n_acad))
+             adaptive_autocorr_inv = gauss_jordan_using_LUTs((autocorr - anomalies_detected_transpose_sum)/(n_acad-t_an),'all');
+         else
+           %  adaptive_autocorr_inv = gauss_jordan_using_LUTs((autocorr - anomalies_detected_transpose_sum)/(j-t_an),'all');
+             adaptive_autocorr_inv = gauss_jordan_using_LUTs((autocorr - anomalies_detected_transpose_sum),'all');
+         end
+ 
+      
+    
 
         
 
@@ -130,8 +125,6 @@ for i=1:1:N/2
     anomaly_map(pixel_pos_anomaly) = 1;
     end
 end
-
-
 
 
 return;

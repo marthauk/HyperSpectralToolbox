@@ -49,24 +49,23 @@ M = hyperConvert2d(M);
 %% RX Anomly Detector
 %r = hyperRxDetector(M);
 %r = hyperRxDetectorCor(M);
-K=25;
+K=23;
 resultsDir =['E:\One Drive\OneDrive for Business\NTNU\Master\Anomaly detection results\MATLAB\LRX\real image data Cuprite scene\' ,datestr(now, 'dd-mmm-yyyy')];
 %r = hyperLRxDetectorCorr(M,K);
 %g = ground_truth(h,614, M, M_endmembers);
 %figure; imagesc(g);colorbar;
 treshold = 500;
-%for treshold= 500: 250 :2000
-%[r,anomalies_detected, location_of_anomalies,last_local_anomalies_set]=hyperLRX_anomaly_set_remover(M,K,treshold);
-%[r,anomalies_detected, location_of_anomalies,last_local_anomalies_set]=hyperLRX_anomaly_set_remover(KSC_2d,K,treshold);
-
- for treshold= 50: 25: 500
- [r, anomaly_map,location_of_anomalies] = hyperACAD(M,treshold);
 
 
-r = hyperConvert3d(r.', h, w, 1);
-figure; imagesc(r); title(['ACAD Detector Results, tresh =' num2str(treshold) '.'] ); axis image;
+for treshold= 500: 250 :2000
+[r,anomalies_detected, location_of_anomalies,last_local_anomalies_set]=hyperLRX_anomaly_set_remover(M,K,treshold);
+[r,anomalies_detected, location_of_anomalies,last_local_anomalies_set]=hyperLRX_anomaly_set_remover(KSC_2d,K,treshold);
+
+
+
+figure; imagesc(r); title(['ALRX Detector Results.K=23, tresh =' num2str(treshold) '.'] ); axis image;
     colorbar;
- hyperSaveFigure(gcf, sprintf(['%s\\ACAD Detector Results, tresh' num2str(treshold) '.png' ], resultsDir));%
+ hyperSaveFigure(gcf, sprintf(['%s\\ALRX Detector Results.K=23, tresh' num2str(treshold) '.png' ], resultsDir));%
     
 %figure; imagesc(r); title(['LRX removing anomalies,tresh =2000,K=25 .'] ); axis image;
 %     colorbar;
@@ -75,9 +74,9 @@ figure; imagesc(r); title(['ACAD Detector Results, tresh =' num2str(treshold) '.
 % hyperSaveFigure(gcf, sprintf(['%s\\LRX_K=25_treshold_500_KSC' num2str(treshold) '.png' ], resultsDir));%
 % 
   anomaly_map = hyperConvert3d(anomaly_map.', h, w, 1);   
-figure; imagesc(anomaly_map); title(['Anomaly map ACAD, treshold =' num2str(treshold) ', K=' num2str(K) '.'] ); axis image;
+figure; imagesc(anomaly_map); title(['Anomaly map ACAD, using LUTs, treshold = ' num2str(treshold) '.'] ); axis image;
     colorbar;
- hyperSaveFigure(gcf, sprintf(['%s\\Anomaly Map ACAD  ' num2str(treshold) '.png' ], resultsDir));%
+ hyperSaveFigure(gcf, sprintf(['%s\\Anomaly Map ACAD using LUTs. treshold= ' num2str(treshold) '.png' ], resultsDir));%
 
 
 

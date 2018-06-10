@@ -20,26 +20,16 @@ function [result, autocorr, sigmaInv] = hyperLRxDetectorCorr(M,K)
 % correlation matrix will be of size p x p
 result = zeros(N, 1);
 
-% for all spectral_bands
-%for i= 1:p
-    % for all N= m x n pixels
     h = waitbar(0,'Initializing waitbar ..');
-
     for j=1:N
         autocorr = hyperCorrK(M,K,j);
-        M_inv = gauss_jordan_inverse(autocorr,'all');
-        %result(j) = M(:,j).' * pinv(autocorr) * M(:,j);
-        result(j) = M(:,j).' * M_inv * M(:,j);
+       % M_inv = gauss_jordan_inverse(autocorr,'all');
+        result(j) = M(:,j).' * pinv(autocorr) * M(:,j);
+        %result(j) = M(:,j).' * M_inv * M(:,j);
 
-        if(result(j)>=100)
-            weird=1;
-        end
-   %     temp_result=result(j);
-        %result(j)= result(j) *  M(:,i);
       waitbar(j/N,h,'Updated LRX progress');
 
     end
-%end
 
 return;
 
